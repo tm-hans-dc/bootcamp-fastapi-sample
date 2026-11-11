@@ -1,0 +1,22 @@
+{
+    "0": {
+        "item_id": 0,
+        "name": "Matcha Latte",
+        "price": 230
+    },
+    "1": {
+        "item_id": 1,
+        "name": "Matcha Seasalt Latte",
+        "price": 240
+    },
+    "2": {
+        "item_id": 2,
+        "name": "Ube Matcha Latte",
+        "price": 250
+    },
+    "3": {
+        "item_id": 3,
+        "name": "Strawberry Matcha Latte",
+        "price": 255.25
+    }
+}

@@ -1,0 +1,18 @@
+# Python bytecode (compiled files)
+__pycache__/
+*.py[cod]
+*.so
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*
+!.env.example
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# python version
+.python-version
