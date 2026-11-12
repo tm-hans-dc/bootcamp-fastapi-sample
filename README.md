@@ -15,6 +15,39 @@ uvicorn main:app --reload --port 8000
 
 All routes are currently unauthenticated. JSON request bodies use the `Content-Type: application/json` header.
 
+## Calling the API with Python
+
+[`client.py`](client.py) is a sample Python script that calls this FastAPI server programmatically. It demonstrates GET, POST, PATCH, and DELETE requests using the `requests` package. Keep the server running in one terminal, then open a second terminal in `sample/`.
+
+```bash
+python -m pip install requests
+```
+
+The request examples in `client.py` are commented out. Uncomment the example or examples you want to try, save the file, then run the script from `sample/`:
+
+```bash
+python client.py
+```
+
+For example, to use the simple GET helper to list sold cafe items, add:
+
+```python
+res = GET_ENDPOINT("/items?is_sold=true")
+```
+
+For the shared CRUD helper, choose the matching `CrudAction` (`READ`, `CREATE`, `UPDATE`, or `DELETE`), route, and—when sending a request body—payload. To demonstrate a successful create, read, update, and delete sequence, uncomment the POST, following GET, PATCH, and DELETE examples for item `4`. Leave the earlier example that reads the not-yet-created item commented out: an unsuccessful `execute_crud_action` call raises an HTTP error and stops the script.
+
+POST and PATCH examples change the JSON data file used by the server. The script prints the HTTP status and response body; `execute_crud_action` also raises an error for unsuccessful HTTP responses.
+
+The client uses Python 3.11 or later because it imports `StrEnum`. It reads optional `ENDPOINT_URL` and `ENDPOINT_PORT` values from `sample/.env`. Their defaults are `http://localhost` and `8000`, respectively:
+
+```dotenv
+ENDPOINT_URL=http://localhost
+ENDPOINT_PORT=8000
+```
+
+Set `ENDPOINT_URL` to the scheme and host without a port, since the script appends `ENDPOINT_PORT` when building the server address.
+
 ## `GET /`
 
 Returns a short message from the root route.
