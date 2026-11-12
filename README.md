@@ -45,6 +45,41 @@ Success response: `200 OK`
 
 The timestamp value is generated at request time; the example value is illustrative.
 
+## `GET /items`
+
+Returns the cafe collection. The optional `is_sold` boolean query parameter filters the result; omit it to return all items.
+
+```bash
+curl -i http://localhost:8000/items
+```
+
+Filter for sold items:
+
+```bash
+curl -i 'http://localhost:8000/items?is_sold=true'
+```
+
+Success response: `200 OK`
+
+```json
+[
+  {
+    "item_id": 2,
+    "name": "Ube Matcha Latte",
+    "price": 250,
+    "is_sold": true
+  }
+]
+```
+
+Use `is_sold=false` to return items that have not been sold. In the sample data, those are item IDs `0`, `1`, and `3`.
+
+```bash
+curl -i 'http://localhost:8000/items?is_sold=false'
+```
+
+FastAPI returns `422 Unprocessable Entity` if `is_sold` is not a boolean value such as `true` or `false`.
+
 ## `GET /items/{item_id}`
 
 Returns one item by its integer ID.
@@ -60,8 +95,10 @@ curl -i http://localhost:8000/items/3
 Success response: `200 OK`
 
 ```json
-{"id":3,"name":"Strawberry Matcha Latte","price":255.25,"status":"success"}
+{"id":3,"name":"Strawberry Matcha Latte","price":255.25,"is_sold":false,"status":"success"}
 ```
+
+The `is_sold` field describes the cafe item. The separate `status` value in this response is response metadata.
 
 Known errors:
 
@@ -70,7 +107,7 @@ Known errors:
 
 ## `POST /items`
 
-Creates an item, assigns the next ID, and saves the updated collection to the configured JSON file. The current `CafeItem` model makes both fields optional; normal examples should provide both.
+Creates an item, assigns the next ID, and saves the updated collection to the configured JSON file. The current `CafeItem` model makes its fields optional; normal examples should provide a name and price. If `is_sold` is omitted, the new item defaults to `false`.
 
 Request body:
 
@@ -78,17 +115,18 @@ Request body:
 | --- | --- | --- | --- |
 | `name` | string or `null` | No | Item name. A name already present in the collection returns a conflict. |
 | `price` | number or `null` | No | Item price. |
+| `is_sold` | boolean | No | Whether the item has been sold. Defaults to `false`. |
 
 ```bash
 curl -i -X POST http://localhost:8000/items \
   -H "Content-Type: application/json" \
-  -d '{"name":"Honey Oat Matcha","price":255.25}'
+  -d '{"name":"Honey Oat Matcha","price":255.25,"is_sold":false}'
 ```
 
 Success response: `201 Created`
 
 ```json
-{"item_id":4,"name":"Honey Oat Matcha","price":255.25}
+{"item_id":4,"name":"Honey Oat Matcha","price":255.25,"is_sold":false}
 ```
 
 Known errors:
@@ -104,18 +142,18 @@ Path parameter:
 
 - `item_id` — integer item ID.
 
-Request body uses the same fields and types as `POST /items`. For a partial update, include only the fields to change.
+Request body uses the same fields and types as `POST /items`. For a partial update, include only the fields to change; `is_sold` can be set to either `true` or `false`.
 
 ```bash
 curl -i -X PATCH http://localhost:8000/items/3 \
   -H "Content-Type: application/json" \
-  -d '{"price":260.5}'
+  -d '{"is_sold":true}'
 ```
 
 Success response: `200 OK`
 
 ```json
-{"item_id":3,"name":"Strawberry Matcha Latte","price":260.5}
+{"item_id":3,"name":"Strawberry Matcha Latte","price":255.25,"is_sold":true}
 ```
 
 Known errors:

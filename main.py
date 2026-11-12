@@ -35,6 +35,9 @@ def load_items():
         stored_items = json.load(file)
 
     return_items = {int(item_id): item for item_id, item in stored_items.items()}
+    for item in return_items.values():
+        item.setdefault("is_sold", False)
+
     MAX_ID = max(return_items, default=0)
     ITEM_NAMES_ONLY.update(item["name"] for item in return_items.values())
     return return_items
@@ -59,6 +62,14 @@ def read_root():
 def get_health_check():
     return {"message": "server is up", "timestamp": datetime.now().isoformat()}
 
+@app.get("/items", status_code=status.HTTP_200_OK)
+def get_items(is_sold: bool | None = None):
+    items = list(ITEMS.values())
+    if is_sold is not None:
+        items = [item for item in items if item.get("is_sold", False) is is_sold]
+
+    return items
+
 # Show that the most basic we can use a fastapi server for is to provided data from a data storage to a frontend
 @app.get("/items/{item_id}", status_code=status.HTTP_200_OK)
 def get_item(item_id: int):
@@ -66,7 +77,7 @@ def get_item(item_id: int):
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
-    return {"id": int(item_id), "name": item["name"], "price": float(item["price"]), "status": "success"}
+    return {"id": int(item_id), "name": item["name"], "price": float(item["price"]), "is_sold": item["is_sold"], "status": "success"}
 
 
 # Show how we implement adding new items
@@ -74,6 +85,7 @@ def get_item(item_id: int):
 class CafeItem(BaseModel):
     name: str | None = None
     price: float | None = None
+    is_sold: bool = False
 
 @app.post("/items", status_code=status.HTTP_201_CREATED)
 def add_item(payload: CafeItem):
